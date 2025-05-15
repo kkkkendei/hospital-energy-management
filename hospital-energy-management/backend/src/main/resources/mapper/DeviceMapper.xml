@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.hospitalenergy.mapper.DeviceMapper">
+
+    <!-- DDL for devices table (example for MySQL) -->
+    <!--
+    CREATE TABLE devices (
+        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        model VARCHAR(255),
+        type VARCHAR(100),
+        location VARCHAR(255),
+        installation_date DATE,
+        status VARCHAR(50),
+        manufacturer VARCHAR(255),
+        serial_number VARCHAR(255) NULL UNIQUE,
+        rated_power DOUBLE,
+        energy_type VARCHAR(50),
+        notes TEXT
+    );
+    -->
+
+    <resultMap id="DeviceResultMap" type="com.example.hospitalenergy.entity.Device">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="model" column="model"/>
+        <result property="type" column="type"/>
+        <result property="location" column="location"/>
+        <result property="installationDate" column="installation_date"/>
+        <result property="status" column="status"/>
+        <result property="manufacturer" column="manufacturer"/>
+        <result property="serialNumber" column="serial_number"/>
+        <result property="ratedPower" column="rated_power"/>
+        <result property="energyType" column="energy_type"/>
+        <result property="notes" column="notes"/>
+    </resultMap>
+
+    <insert id="insertDevice" parameterType="com.example.hospitalenergy.entity.Device" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO devices (name, model, type, location, installation_date, status, manufacturer, serial_number, rated_power, energy_type, notes)
+        VALUES (#{name}, #{model}, #{type}, #{location}, #{installationDate}, #{status}, #{manufacturer}, #{serialNumber}, #{ratedPower}, #{energyType}, #{notes})
+    </insert>
+
+    <select id="findDeviceById" parameterType="long" resultMap="DeviceResultMap">
+        SELECT id, name, model, type, location, installation_date, status, manufacturer, serial_number, rated_power, energy_type, notes
+        FROM devices
+        WHERE id = #{id}
+    </select>
+
+    <select id="findAllDevices" resultMap="DeviceResultMap">
+        SELECT id, name, model, type, location, installation_date, status, manufacturer, serial_number, rated_power, energy_type, notes
+        FROM devices
+        ORDER BY name ASC
+    </select>
+
+    <update id="updateDevice" parameterType="com.example.hospitalenergy.entity.Device">
+        UPDATE devices
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="model != null and model != ''">model = #{model},</if>
+            <if test="type != null and type != ''">type = #{type},</if>
+            <if test="location != null and location != ''">location = #{location},</if>
+            <if test="installationDate != null">installation_date = #{installationDate},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="manufacturer != null">manufacturer = #{manufacturer},</if>
+            <if test="serialNumber != null">serial_number = #{serialNumber},</if>
+            <if test="ratedPower != null">rated_power = #{ratedPower},</if>
+            <if test="energyType != null">energy_type = #{energyType},</if>
+            <if test="notes != null">notes = #{notes},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteDevice" parameterType="long">
+        DELETE FROM devices WHERE id = #{id}
+    </delete>
+
+</mapper> 
