@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.hospitalenergy.mapper.EnergyDataMapper">
+
+    <!-- 
+    DDL for energy_data table (example for MySQL):
+    CREATE TABLE energy_data (
+        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        device_id BIGINT NOT NULL,                  -- 关联的设备ID
+        record_time DATETIME NOT NULL,              -- 数据记录时间
+        energy_value DOUBLE PRECISION NOT NULL,     -- 能耗数值
+        energy_unit VARCHAR(50) NOT NULL,         -- 能耗单位 (kWh, m³, kg, L)
+        notes TEXT,                                 -- 备注
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 记录创建时间 (可选)
+        FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE -- 外键关联
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    -->
+
+    <resultMap id="EnergyDataResultMap" type="com.example.hospitalenergy.entity.EnergyData">
+        <id property="id" column="id"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="recordTime" column="record_time"/>
+        <result property="energyValue" column="energy_value"/>
+        <result property="energyUnit" column="energy_unit"/>
+        <result property="notes" column="notes"/>
+    </resultMap>
+
+    <insert id="insertEnergyData" parameterType="com.example.hospitalenergy.entity.EnergyData" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO energy_data (device_id, record_time, energy_value, energy_unit, notes)
+        VALUES (#{deviceId}, #{recordTime}, #{energyValue}, #{energyUnit}, #{notes})
+    </insert>
+
+    <select id="findEnergyDataById" parameterType="long" resultMap="EnergyDataResultMap">
+        SELECT id, device_id, record_time, energy_value, energy_unit, notes
+        FROM energy_data
+        WHERE id = #{id}
+    </select>
+
+    <select id="findEnergyDataByDeviceId" parameterType="long" resultMap="EnergyDataResultMap">
+        SELECT id, device_id, record_time, energy_value, energy_unit, notes
+        FROM energy_data
+        WHERE device_id = #{deviceId}
+        ORDER BY record_time DESC
+    </select>
+
+    <select id="findEnergyDataByTimeRange" resultMap="EnergyDataResultMap">
+        SELECT id, device_id, record_time, energy_value, energy_unit, notes
+        FROM energy_data
+        WHERE record_time BETWEEN #{startTime} AND #{endTime}
+        ORDER BY record_time DESC
+    </select>
+
+    <select id="findEnergyDataByDeviceAndTimeRange" resultMap="EnergyDataResultMap">
+        SELECT id, device_id, record_time, energy_value, energy_unit, notes
+        FROM energy_data
+        WHERE device_id = #{deviceId}
+          AND record_time BETWEEN #{startTime} AND #{endTime}
+        ORDER BY record_time DESC
+    </select>
+    
+    <select id="findAllEnergyData" resultMap="EnergyDataResultMap">
+        SELECT id, device_id, record_time, energy_value, energy_unit, notes
+        FROM energy_data
+        ORDER BY record_time DESC
+    </select>
+    
+    <update id="updateEnergyData" parameterType="com.example.hospitalenergy.entity.EnergyData">
+        UPDATE energy_data
+        <set>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="recordTime != null">record_time = #{recordTime},</if>
+            <if test="energyValue != null">energy_value = #{energyValue},</if>
+            <if test="energyUnit != null and energyUnit != ''">energy_unit = #{energyUnit},</if>
+            <if test="notes != null">notes = #{notes},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteEnergyData" parameterType="long">
+        DELETE FROM energy_data WHERE id = #{id}
+    </delete>
+
+</mapper> 

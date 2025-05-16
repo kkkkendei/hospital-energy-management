@@ -1,7 +1,7 @@
 package com.example.hospitalenergy.controller;
 
 import com.example.hospitalenergy.entity.Device;
-import com.example.hospitalenergy.mapper.DeviceMapper;
+import com.example.hospitalenergy.service.DeviceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,58 +19,58 @@ public class DeviceController {
     private static final Logger logger = LoggerFactory.getLogger(DeviceController.class);
 
     @Autowired
-    private DeviceMapper deviceMapper;
+    private DeviceService deviceService;
 
     // GET all devices
     @GetMapping
     public ResponseEntity<List<Device>> getAllDevices() {
-        logger.info("Fetching all devices");
+        logger.info("Controller: Fetching all devices");
         try {
-            List<Device> devices = deviceMapper.findAllDevices();
-            if (devices.isEmpty()) {
+            List<Device> devices = deviceService.getAllDevices();
+            if (devices == null || devices.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }
             return ResponseEntity.ok(devices);
         } catch (Exception e) {
-            logger.error("Error fetching all devices: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            logger.error("Controller: Error fetching all devices: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     // GET device by ID
     @GetMapping("/{id}")
     public ResponseEntity<Device> getDeviceById(@PathVariable Long id) {
-        logger.info("Fetching device with ID: {}", id);
+        logger.info("Controller: Fetching device with ID: {}", id);
         try {
-            Device device = deviceMapper.findDeviceById(id);
+            Device device = deviceService.findDeviceById(id);
             if (device == null) {
-                logger.warn("Device with ID: {} not found.", id);
+                logger.warn("Controller: Device with ID: {} not found.", id);
                 return ResponseEntity.notFound().build();
             }
             return ResponseEntity.ok(device);
         } catch (Exception e) {
-            logger.error("Error fetching device with ID {}: {}", id, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            logger.error("Controller: Error fetching device with ID {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     // CREATE a new device
     @PostMapping
     public ResponseEntity<?> createDevice(@RequestBody Device device) {
-        logger.info("Creating new device: {}", device.getName());
+        logger.info("Controller: Creating new device: {}", device.getName());
         try {
-            // Basic validation example (can be expanded with @Valid and DTOs)
             if (device.getName() == null || device.getName().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("Device name cannot be empty.");
             }
-            // You might want to check for duplicate serial numbers if they should be unique before inserting
-
-            deviceMapper.insertDevice(device); // ID will be set in the device object by useGeneratedKeys
-            logger.info("Device created successfully with ID: {}", device.getId());
-            return ResponseEntity.status(HttpStatus.CREATED).body(device);
+            
+            Device createdDevice = deviceService.createDevice(device);
+            logger.info("Controller: Device created successfully with ID: {}", createdDevice.getId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdDevice);
+        } catch (IllegalArgumentException iae) {
+            logger.warn("Controller: Bad request creating device: {}", iae.getMessage());
+            return ResponseEntity.badRequest().body(iae.getMessage());
         } catch (Exception e) {
-            logger.error("Error creating device {}: {}", device.getName(), e.getMessage(), e);
-            // Consider more specific error handling, e.g., for duplicate serial_number if it has a UNIQUE constraint
+            logger.error("Controller: Error creating device {}: {}", device.getName(), e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create device: " + e.getMessage());
         }
     }
@@ -78,33 +78,26 @@ public class DeviceController {
     // UPDATE an existing device
     @PutMapping("/{id}")
     public ResponseEntity<?> updateDevice(@PathVariable Long id, @RequestBody Device deviceDetails) {
-        logger.info("Updating device with ID: {}", id);
+        logger.info("Controller: Updating device with ID: {}", id);
         try {
-            Device existingDevice = deviceMapper.findDeviceById(id);
-            if (existingDevice == null) {
-                logger.warn("Cannot update. Device with ID: {} not found.", id);
-                return ResponseEntity.notFound().build();
-            }
-
-            // Basic validation example
             if (deviceDetails.getName() != null && deviceDetails.getName().trim().isEmpty()){
                  return ResponseEntity.badRequest().body("Device name cannot be empty if provided for update.");
             }
 
-            // Set ID for the update, ensure it matches the path variable
-            deviceDetails.setId(id);
-            
-            int updatedRows = deviceMapper.updateDevice(deviceDetails);
-            if (updatedRows == 0) {
-                 // This might happen if the device was deleted between find and update, or if update logic didn't match any rows
-                logger.warn("Device with ID: {} found but not updated. Maybe no changes or concurrent modification?", id);
-                // Return the existing device or an appropriate message
-                return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body("Device not updated, no changes or data mismatch."); 
+            Device updatedDevice = deviceService.updateDevice(id, deviceDetails);
+            if (updatedDevice == null) {
+                logger.warn("Controller: Cannot update. Device with ID: {} not found or not modified.", id);
+                Device checkDevice = deviceService.findDeviceById(id);
+                if (checkDevice == null) return ResponseEntity.notFound().build();
+                return ResponseEntity.ok(checkDevice);
             }
-            logger.info("Device with ID: {} updated successfully.", id);
-            return ResponseEntity.ok(deviceMapper.findDeviceById(id)); // Return the updated device
+            logger.info("Controller: Device with ID: {} updated successfully.", id);
+            return ResponseEntity.ok(updatedDevice);
+        } catch (IllegalArgumentException iae) {
+            logger.warn("Controller: Bad request updating device: {}", iae.getMessage());
+            return ResponseEntity.badRequest().body(iae.getMessage());
         } catch (Exception e) {
-            logger.error("Error updating device with ID {}: {}", id, e.getMessage(), e);
+            logger.error("Controller: Error updating device with ID {}: {}", id, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update device: " + e.getMessage());
         }
     }
@@ -112,18 +105,17 @@ public class DeviceController {
     // DELETE a device
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDevice(@PathVariable Long id) {
-        logger.info("Deleting device with ID: {}", id);
+        logger.info("Controller: Deleting device with ID: {}", id);
         try {
-            Device existingDevice = deviceMapper.findDeviceById(id);
-            if (existingDevice == null) {
-                logger.warn("Cannot delete. Device with ID: {} not found.", id);
+            boolean deleted = deviceService.deleteDevice(id);
+            if (!deleted) {
+                logger.warn("Controller: Cannot delete. Device with ID: {} not found or not deleted.", id);
                 return ResponseEntity.notFound().build();
             }
-            deviceMapper.deleteDevice(id);
-            logger.info("Device with ID: {} deleted successfully.", id);
+            logger.info("Controller: Device with ID: {} deleted successfully.", id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            logger.error("Error deleting device with ID {}: {}", id, e.getMessage(), e);
+            logger.error("Controller: Error deleting device with ID {}: {}", id, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
