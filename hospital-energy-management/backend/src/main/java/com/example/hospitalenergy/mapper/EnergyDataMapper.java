@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface EnergyDataMapper {
@@ -69,4 +70,21 @@ public interface EnergyDataMapper {
      * @return 影响行数
      */
     int deleteEnergyData(Long id);
+
+    // 新增的统计查询方法
+    Map<String, Object> queryOverallEnergyStats(@Param("startTime") LocalDateTime startTime, 
+                                                @Param("endTime") LocalDateTime endTime, 
+                                                @Param("deviceIds") List<Long> deviceIds, 
+                                                @Param("energyType") String energyType);
+
+    List<Map<String, Object>> queryEnergyStatsByDevice(@Param("startTime") LocalDateTime startTime, 
+                                                       @Param("endTime") LocalDateTime endTime, 
+                                                       @Param("deviceIds") List<Long> deviceIds, 
+                                                       @Param("energyType") String energyType);
+
+    List<Map<String, Object>> queryEnergyTrendData(@Param("startTime") LocalDateTime startTime, 
+                                                   @Param("endTime") LocalDateTime endTime, 
+                                                   @Param("deviceIds") List<Long> deviceIds, 
+                                                   @Param("energyType") String energyType, 
+                                                   @Param("timeGranularity") String timeGranularity);
 } 

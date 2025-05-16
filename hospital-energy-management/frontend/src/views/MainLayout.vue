@@ -8,8 +8,9 @@
         </el-menu-item>
         <el-submenu index="1">
           <template slot="title"><i class="el-icon-menu"></i>能源管理</template>
+          <el-menu-item index="/app/energy-data-entry">数据录入</el-menu-item>
           <el-menu-item index="/app/energy-data">能源数据</el-menu-item>
-          <!-- <el-menu-item index="/app/energy-analysis">能耗分析</el-menu-item> -->
+          <el-menu-item index="/app/energy-analysis">能耗分析</el-menu-item>
         </el-submenu>
         <el-menu-item index="/app/devices">
           <i class="el-icon-setting"></i>

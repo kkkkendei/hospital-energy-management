@@ -12,7 +12,7 @@
         style="width: 100%"
         border
         stripe>
-        <el-table-column prop="id" label="ID" width="80" sortable></el-table-column>
+        <el-table-column prop="serialNumber" label="ID" width="80" sortable></el-table-column>
         <el-table-column prop="name" label="设备名称" sortable show-overflow-tooltip></el-table-column>
         <el-table-column prop="model" label="型号" width="150" show-overflow-tooltip></el-table-column>
         <el-table-column prop="type" label="类型" width="120" show-overflow-tooltip></el-table-column>
@@ -192,7 +192,7 @@ export default {
     async fetchDevices() {
       this.loading = true;
       try {
-        const response = await this.$http.get('/devices');
+        const response = await this.$http.get('/api/devices');
         this.devices = response.data || [];
       } catch (error) {
         console.error("获取设备列表失败:", error);
@@ -257,7 +257,7 @@ export default {
         type: 'warning'
       }).then(async () => {
         try {
-          await this.$http.delete(`/devices/${row.id}`);
+          await this.$http.delete(`/api/devices/${row.id}`);
           this.$message.success('删除成功!');
           this.fetchDevices(); // Refresh list
         } catch (error) {
@@ -275,11 +275,11 @@ export default {
           try {
             if (this.isEditMode) {
               // Edit mode
-              await this.$http.put(`/devices/${this.deviceForm.id}`, this.deviceForm);
+              await this.$http.put(`/api/devices/${this.deviceForm.id}`, this.deviceForm);
               this.$message.success('设备更新成功!');
             } else {
               // Add mode
-              await this.$http.post('/devices', this.deviceForm);
+              await this.$http.post('/api/devices', this.deviceForm);
               this.$message.success('设备添加成功!');
             }
             this.dialogVisible = false;

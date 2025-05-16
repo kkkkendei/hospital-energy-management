@@ -87,7 +87,7 @@ public class EnergyDataController {
 
     // GET energy data within a time range for all devices
     @GetMapping("/range")
-    public ResponseEntity<List<EnergyData>> getEnergyDataByTimeRange(
+    public ResponseEntity<?> getEnergyDataByTimeRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
         logger.info("Controller: Fetching energy data between {} and {}", startTime, endTime);
@@ -108,7 +108,7 @@ public class EnergyDataController {
 
     // GET energy data for a specific device within a time range
     @GetMapping("/device/{deviceId}/range")
-    public ResponseEntity<List<EnergyData>> getEnergyDataByDeviceAndTimeRange(
+    public ResponseEntity<?> getEnergyDataByDeviceAndTimeRange(
             @PathVariable Long deviceId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
@@ -149,7 +149,7 @@ public class EnergyDataController {
 
     // DELETE an energy data record
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEnergyDataRecord(@PathVariable Long id) {
+    public ResponseEntity<?> deleteEnergyDataRecord(@PathVariable Long id) {
         logger.info("Controller: Request to delete energy data with ID: {}", id);
         try {
             boolean deleted = energyDataService.deleteEnergyData(id);

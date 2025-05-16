@@ -39,7 +39,7 @@ const authModule = {
       try {
         const response = await axios.post('/auth/signin', credentials);
         // Backend now returns UserLoginResponse: { id, username, email, roles, message }
-        const userData = response.data; 
+        const userData = response.data;
         if (userData && userData.username) { // Check if login was successful based on response
           const user = {
             id: userData.id,
@@ -55,8 +55,8 @@ const authModule = {
         }
       } catch (error) {
         commit('SET_USER', null); // Clear user on login failure
-        const errorMessage = error.response && error.response.data && error.response.data.message 
-                           ? error.response.data.message 
+        const errorMessage = error.response && error.response.data && error.response.data.message
+                           ? error.response.data.message
                            : (error.message || 'Login failed due to an unexpected error.');
         return Promise.reject(new Error(errorMessage));
       }
@@ -64,7 +64,7 @@ const authModule = {
     async register(_context, userData) {
       try {
         const response = await axios.post('/auth/signup', userData);
-        return Promise.resolve(response.data); 
+        return Promise.resolve(response.data);
       } catch (error) {
         const errorMessage = error.response && error.response.data && error.response.data.message
                            ? error.response.data.message

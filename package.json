@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "echarts": "^5.6.0",
+    "moment": "^2.30.1"
+  }
+}
