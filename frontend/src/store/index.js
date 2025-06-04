@@ -8,6 +8,7 @@ const authModule = {
   namespaced: true,
   state: {
     user: null, // 用户信息对象
+    currentUser: null
     // token: localStorage.getItem('user-token') || '' // No more token
   },
   mutations: {
@@ -23,6 +24,7 @@ const authModule = {
     // },
     SET_USER(state, user) {
       state.user = user; // user might be null to clear it
+      state.currentUser = user; // Keep currentUser in sync with user
       if (user) {
         localStorage.setItem('user-info', JSON.stringify(user)); // Store user info
       } else {

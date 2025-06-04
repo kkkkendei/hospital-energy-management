@@ -2,13 +2,13 @@
   <div>
     <el-card>
       <div slot="header">
-        <span>欢迎回来, {{ currentUser ? currentUser.username : 'wzy' }}!</span>
+        <span>欢迎回来, {{ currentUser ? currentUser.username : '未知用户' }}!</span>
       </div>
       <p>这里是医院能源管理系统仪表盘。</p>
-      <p>当前用户：{{ currentUser ? currentUser.username : 'wzy' }} ({{ currentUser && currentUser.enabled ? '管理员' : '管理员' }})</p>
+      <p>当前用户：{{ currentUser ? currentUser.username : '未知用户' }} ({{ currentUser && currentUser.enabled ? '管理员' : '普通用户' }})</p>
       <!-- 根据需要在此处添加更多仪表盘内容 -->
       <div v-if="isAdmin">
-        <p style="color: green;">您拥有管理员权限，可以进行用户管理等高级操作。</p>
+        <p style="color: green;"></p>
         <!-- 管理员可见内容 -->
       </div>
     </el-card>
