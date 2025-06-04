@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.hospitalenergy.mapper.UserMapper">
+
+    <resultMap id="UserResultMap" type="com.example.hospitalenergy.entity.User">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="email" column="email"/>
+        <result property="password" column="password"/>
+        <result property="enabled" column="enabled"/>
+        <!-- roles 将通过另一个查询或联表查询填充 -->
+        <collection property="roles" javaType="java.util.HashSet" ofType="com.example.hospitalenergy.entity.Role"
+                    select="findRolesByUserIdSeparateQuery" column="id"/>
+    </resultMap>
+
+    <select id="findByUsername" resultMap="UserResultMap">
+        SELECT id, username, email, password, enabled FROM users WHERE username = #{username}
+    </select>
+
+    <select id="findUserWithRolesByUsername" resultMap="UserResultMap">
+        SELECT id, username, email, password, enabled FROM users WHERE username = #{username}
+    </select>
+
+    <select id="findRolesByUserIdSeparateQuery" resultType="com.example.hospitalenergy.entity.Role">
+        SELECT role_name FROM user_roles WHERE user_id = #{userId}
+    </select>
+
+    <select id="findRolesByUserId" resultType="com.example.hospitalenergy.entity.Role">
+        SELECT role_name AS value FROM user_roles WHERE user_id = #{userId}
+    </select>
+
+    <select id="existsByUsername" resultType="java.lang.Boolean">
+        SELECT EXISTS(SELECT 1 FROM users WHERE username = #{username})
+    </select>
+
+    <select id="existsByEmail" resultType="java.lang.Boolean">
+        SELECT EXISTS(SELECT 1 FROM users WHERE email = #{email})
+    </select>
+
+    <!-- 注意：save 方法是一个通用名称，这里我们实现为 insertUser -->
+    <!-- useGeneratedKeys 和 keyProperty 用于获取自增主键 -->
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="id" parameterType="com.example.hospitalenergy.entity.User">
+        INSERT INTO users (username, email, password, enabled)
+        VALUES (#{username}, #{email}, #{password}, #{enabled})
+    </insert>
+
+    <!-- save 方法，用于更新或插入，这里仅作插入示例 -->
+    <insert id="save" useGeneratedKeys="true" keyProperty="id" parameterType="com.example.hospitalenergy.entity.User">
+        INSERT INTO users (username, email, password, enabled)
+        VALUES (#{username}, #{email}, #{password}, #{enabled})
+        <!-- 如果需要 ON DUPLICATE KEY UPDATE，可以在这里添加 -->
+    </insert>
+
+    <insert id="insertUserRole">
+        INSERT INTO user_roles (user_id, role_name)
+        VALUES (#{userId}, #{role})
+    </insert>
+
+    <select id="findAllUsers" resultMap="UserResultMap">
+        SELECT id, username, email, password, enabled FROM users
+    </select>
+
+    <update id="updateUserEnabled">
+        UPDATE users SET enabled = #{enabled} WHERE id = #{userId}
+    </update>
+
+    <!-- 数据库初始化语句 (可选，方便测试) -->
+    <!--
+    DROP TABLE IF EXISTS user_roles;
+    DROP TABLE IF EXISTS users;
+
+    CREATE TABLE users (
+        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL UNIQUE,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        enabled BOOLEAN DEFAULT FALSE
+    );
+
+    CREATE TABLE user_roles (
+        user_id BIGINT NOT NULL,
+        role_name VARCHAR(50) NOT NULL,
+        PRIMARY KEY (user_id, role_name),
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    );
+    -->
+
+</mapper> 
