@@ -1,5 +1,6 @@
 package com.example.hospitalenergy.controller;
 
+
 import com.example.hospitalenergy.dto.EnergyStatsResponse;
 import com.example.hospitalenergy.dto.QueryParametersDto;
 import com.example.hospitalenergy.service.EnergyStatsService;
@@ -25,7 +26,7 @@ public class EnergyStatsController {
             @RequestParam(required = false) String energyType,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
-            @RequestParam(required = false, defaultValue = "daily") String timeGranularityForTrend // 默认为 daily
+            @RequestParam(required = false, defaultValue = "daily") String timeGranularityForTrend
     ) {
         QueryParametersDto params = new QueryParametersDto(
                 deviceIds,
