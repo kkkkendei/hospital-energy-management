@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.mybatis.spring.annotation.MapperScan; // 如果使用MyBatis, 取消此行注释
 
 @SpringBootApplication
-@MapperScan("com.example.hospitalenergy.mapper") // 如果使用MyBatis, 指定mapper接口的包路径
+@MapperScan("com.example.hospitalenergy.mapper")
 public class HospitalEnergyApplication {
 
     public static void main(String[] args) {
